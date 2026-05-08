@@ -1,0 +1,29 @@
+name: CICD
+
+on: 
+  push:
+    branches: [CICD_testproject1]
+
+jobs:
+  build:
+     runs-on: [ubuntu-latest]
+     steps:
+        - name: Checkout source
+          uses: actions/checkout@v6
+        - name: Login to Docker hub
+          run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
+        - name: Build docker image
+          run: docker build -t papsCICDP3/nodejs-app .
+        - name: Publish image to docker hub
+          run: docker push papsCICDP3/nodejs-app:latest
+  deploy:
+     needs: build
+     runs-on: [aws-ec2] 
+     steps:
+       - name: Pull image from docker hub
+         run: docker pull papsCICDP3/nodejs-app:latest
+       - name: Delete old container
+         run: docker rm -f node.js-app-container
+       - name: Run docker container
+         run: docker run -d -p 3000:3000 -name nodejs-app-container papsCICDP3/nodejs-app
+       

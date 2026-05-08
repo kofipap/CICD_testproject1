@@ -1,0 +1,15 @@
+{
+  "name": "nodejs-docker-app",
+  "version": "1.0.0",
+  "description": "A simple Node.js REST API with JSON storage, ready for Docker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["nodejs", "docker", "rest-api"],
+  "license": "MIT"
+}
