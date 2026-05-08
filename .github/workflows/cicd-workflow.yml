@@ -1,34 +1,37 @@
 name: CICD
 
-on: 
+on:
   push:
     branches: [master]
 
 jobs:
   build:
-     runs-on: [ubuntu-latest]
-     steps:
-        - name: Checkout source
-          uses: actions/checkout@v6
+    runs-on: ubuntu-latest
 
-        - name: Login to Docker hub
-          run:  echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-        - name: Build docker image
-          run: docker build -t papsCICDP3/nodejs-app:latest .
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-        - name: Publish image to docker hub
-          run: docker push papsCICDP3/nodejs-app:latest
+      - name: Build Docker image
+        run: docker build -t papsCICDP3/nodejs-app:latest .
+
+      - name: Push image to Docker Hub
+        run: docker push papsCICDP3/nodejs-app:latest
+
   deploy:
-     needs: build
-     runs-on: [aws-ec2] 
-     steps:
-       - name: Pull image from docker hub
-         run: docker pull papsCICDP3/nodejs-app:latest
+    needs: build
+    runs-on: self-hosted
 
-       - name: Delete old container
-         run: docker rm -f nodejs-app-container
+    steps:
+      - name: Pull image from Docker Hub
+        run: docker pull papsCICDP3/nodejs-app:latest
 
-       - name: Run docker container
-         run: docker run -d -p 3000:3000 --name nodejs-app-container papsCICDP3/nodejs-app
-       
+      - name: Stop old container (ignore errors)
+        run: docker rm -f nodejs-app-container || true
+
+      - name: Run new container
+        run: docker run -d -p 3000:3000 --name nodejs-app-container papsCICDP3/nodejs-app:latest
