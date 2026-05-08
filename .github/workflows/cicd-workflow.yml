@@ -17,10 +17,10 @@ jobs:
           echo "${{ secrets.DOCKER__PASSWORD }}" | docker login -u "${{ secrets.DOCKER__USERNAME }}" --password-stdin
 
       - name: Build Docker image
-        run: docker build -t papsCICDP3/nodejs-app:latest .
+        run: docker build -t kofipap/nodejs-app:latest .
 
       - name: Push image to Docker Hub
-        run: docker push papsCICDP3/nodejs-app:latest
+        run: docker push kofipap/nodejs-app:latest
 
   deploy:
     needs: build
@@ -28,10 +28,10 @@ jobs:
 
     steps:
       - name: Pull image from Docker Hub
-        run: docker pull papsCICDP3/nodejs-app:latest
+        run: docker pull kofipap/nodejs-app:latest
 
       - name: Stop old container (ignore errors)
         run: docker rm -f nodejs-app-container || true
 
       - name: Run new container
-        run: docker run -d -p 3000:3000 --name nodejs-app-container papsCICDP3/nodejs-app:latest
+        run: docker run -d -p 3000:3000 --name nodejs-app-container kofipap/nodejs-app:latest
